@@ -1,0 +1,10 @@
+*.env
+*pyproject.toml
+*poetry.lock
+*.pyc
+*.pyd
+*.pyo
+*.vscode
+*.idea
+*Thumbs.db
+*.DS_Store
