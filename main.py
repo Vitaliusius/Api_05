@@ -5,8 +5,8 @@ from environs import env
 from dotenv import load_dotenv
 from terminaltables import AsciiTable
 
-load_dotenv()
-LANGUAGES = env.list('LANGUAGES')
+
+VACANCIES_AREA_HH = 1
 
 
 def get_vacancies_sj(language, secret_key, page=0):
@@ -30,7 +30,7 @@ def get_vacancies_hh(language, page=0):
     }
     payload = {
         'text': f'Программист {language}',
-        'area': 1,
+        'area': VACANCIES_AREA_HH,
         'page': page,
         'per_page': 100
     }
@@ -82,7 +82,7 @@ def get_vacancies_salaries_hh(language):
     return salaries_hh, vacancies_found_hh
 
 
-def get_predict_rub_salary(salary_from, salary_to, salary_currency):
+def get_rub_salary(salary_from, salary_to, salary_currency):
     currencies = ['RUR', 'rub']
     if salary_currency not in currencies:
         return None
@@ -125,9 +125,11 @@ def print_table(statistics, name_site):
             "Средняя зарплата"
         ]
     ]
-    for language in LANGUAGES:
-        vacancy_parameters = list(statistics.get(language).values())
-        vacancy_parameters.insert(0, language)
+    for language, parameters in statistics.items():
+        vacancy_parameters = []
+        vacancy_parameters.append(language)
+        for parameter in parameters.values():
+            vacancy_parameters.append(parameter)
         table_parameters.append(vacancy_parameters)
     table = AsciiTable(table_parameters, title)
     print(table.table)
@@ -135,10 +137,11 @@ def print_table(statistics, name_site):
 
 def main():
     load_dotenv()
+    languages = env.list('LANGUAGES')
     secret_key_sj = env.str("SECRET_KEY_SJ")
     statistics_sj = {}
     statistics_hh = {}
-    for language in LANGUAGES:
+    for language in languages:
         salaries_hh, vacancies_found_hh = get_vacancies_salaries_hh(language)       
         statistics_hh[language] = get_statistics(vacancies_found_hh, salaries_hh)
         salaries_sj, vacancies_found_sj = get_vacancies_salaries_sj(language, secret_key_sj)
